@@ -8,7 +8,7 @@ const {
   getReadingStats,
   getGenres,
   createSampleBooks
-} = require('../controllers/bookController');
+} = require('../controllers/bookController'); 
 const { authenticate, optionalAuth } = require('../middleware/auth');
 const { validateBook, validateReadingProgress } = require('../middleware/validation');
 const { uploadPDF, handleUploadError } = require('../config/upload');
@@ -25,7 +25,7 @@ router.get('/:id/pdf', getBookPDF);
 router.post('/:id/progress', authenticate, validateReadingProgress, updateReadingProgress);
 router.get('/user/stats', authenticate, getReadingStats);
 
-// Routes d'administration (à protéger avec un rôle admin en production)
+// Routes d'administration
 router.post('/', authenticate, uploadPDF.single('pdf'), validateBook, handleUploadError, createBook);
 router.post('/samples/create', authenticate, createSampleBooks);
 
