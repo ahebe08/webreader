@@ -15,31 +15,70 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (token) {
-      api.getProfile(token)
-        .then(data => setUser(data.user))
-        .catch(() => {
-          localStorage.removeItem('token');
-          setToken(null);
-        })
-        .finally(() => setLoading(false));
-    } else {
-      setLoading(false);
-    }
-  }, [token]);
+    const initAuth = async () => {
+      const storedToken = localStorage.getItem('token');
+      
+      if (!storedToken) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const response = await api.getProfile(storedToken);
+        if (response.success) {
+          setUser(response.data.utilisateur);
+          setToken(storedToken);
+        } else {
+          throw new Error(response.error);
+        }
+      } catch (error) {
+        console.error('Erreur d\'authentification:', error.message);
+        // Nettoyer le token invalide
+        localStorage.removeItem('token');
+        setToken(null);
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    initAuth();
+  }, []);
 
   const login = async (email, password) => {
-    const data = await api.login(email, password);
-    setToken(data.token);
-    setUser(data.user);
-    localStorage.setItem('token', data.token);
+    try {
+      const response = await api.login(email, password);
+      if (response.success) {
+        const newToken = response.data.token;
+        setToken(newToken);
+        setUser(response.data.utilisateur);
+        localStorage.setItem('token', newToken);
+        return { success: true };
+      } else {
+        return { success: false, error: response.error };
+      }
+    } catch (error) {
+      console.error('Erreur de connexion:', error);
+      return { success: false, error: error.message };
+    }
   };
 
   const register = async (email, password) => {
-    const data = await api.register(email, password);
-    setToken(data.token);
-    setUser(data.user);
-    localStorage.setItem('token', data.token);
+    try {
+      const response = await api.register(email, password);
+      if (response.success) {
+        const newToken = response.data.token;
+        setToken(newToken);
+        setUser(response.data.utilisateur);
+        localStorage.setItem('token', newToken);
+        return { success: true };
+      } else {
+        return { success: false, error: response.error };
+      }
+    } catch (error) {
+      console.error('Erreur d\'inscription:', error);
+      return { success: false, error: error.message };
+    }
   };
 
   const logout = () => {
@@ -48,8 +87,17 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('token');
   };
 
+  const value = {
+    user,
+    token,
+    login,
+    register,
+    logout,
+    loading
+  };
+
   return (
-    <AuthContext.Provider value={{ user, token, login, register, logout, loading }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );

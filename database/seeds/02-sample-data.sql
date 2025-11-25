@@ -37,4 +37,4 @@ FROM books
 WHERE id IN (1, 2, 3)
 AND NOT EXISTS (SELECT 1 FROM reading_sessions WHERE user_id = 1 AND book_id = books.id);
 
-RAISE NOTICE '📊 Données d''exemple supplémentaires ajoutées avec succès';
+RAISE NOTICE 'Données d''exemple supplémentaires ajoutées avec succès';

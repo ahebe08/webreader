@@ -1,27 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { X, Book, Eye } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
-import { api } from '../services/api';
+import { useNavigate } from 'react-router-dom';
 
 export const BookDetailModal = ({ book, onClose }) => {
-  const { token } = useAuth();
-  const [currentPage, setCurrentPage] = useState(1);
-  const [showReader, setShowReader] = useState(false);
+  const navigate = useNavigate();
+  const API_BASE = 'http://localhost:5000';
 
-  const handleUpdateProgress = async () => {
-    if (!token) return;
-    try {
-      await api.updateProgress(token, book.id, currentPage, currentPage / 100);
-    } catch (err) {
-      console.error('Error updating progress:', err);
-    }
+  const handleReadBook = () => {
+    // Naviguer vers la page de lecture
+    navigate(`/reader/${book.id}`);
+    onClose(); // Fermer la modale
   };
-
-  useEffect(() => {
-    if (showReader) {
-      handleUpdateProgress();
-    }
-  }, [currentPage, showReader]);
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -39,94 +28,95 @@ export const BookDetailModal = ({ book, onClose }) => {
           </button>
         </div>
         
-        {!showReader ? (
-          <div className="modal-body">
-            <div className="book-detail-grid">
-              <div className="book-cover-section">
-                <div className="book-cover-large">
+        <div className="modal-body">
+          <div className="book-detail-grid">
+            <div className="book-cover-section">
+              <div className="book-cover-large">
+                {book.cover_image ? (
+                  <img 
+                    src={`${API_BASE}/uploads/covers/${book.cover_image}`}
+                    alt={`Couverture de ${book.title}`}
+                    className="book-cover-image-large"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.nextSibling.style.display = 'flex';
+                    }}
+                  />
+                ) : null}
+                <div className={`book-cover-fallback-large ${book.cover_image ? 'hidden' : ''}`}>
                   <Book className="icon-xxl" />
                 </div>
               </div>
-              
-              <div className="book-info-section">
-                <div className="detail-section">
-                  <h3 className="detail-label">Auteur</h3>
-                  <p className="detail-value">{book.author}</p>
-                </div>
-                
-                <div className="detail-grid">
-                  <div className="detail-section">
-                    <h3 className="detail-label">Année</h3>
-                    <p className="detail-value">{book.year}</p>
+              {book.sessionLecture && (
+                <div className="reading-progress">
+                  <div className="progress-text">
+                    Progression: {Math.round(book.sessionLecture.progress || 0)}%
                   </div>
-                  <div className="detail-section">
-                    <h3 className="detail-label">Genre</h3>
-                    <p className="detail-value">{book.genre}</p>
+                  <div className="progress-bar">
+                    <div 
+                      className="progress-fill" 
+                      style={{ width: `${book.sessionLecture.progress || 0}%` }}
+                    ></div>
                   </div>
                 </div>
-                
-                {book.publisher && (
-                  <div className="detail-section">
-                    <h3 className="detail-label">Éditeur</h3>
-                    <p className="detail-value">{book.publisher}</p>
-                  </div>
-                )}
-                
-                {book.page_count && (
-                  <div className="detail-section">
-                    <h3 className="detail-label">Pages</h3>
-                    <p className="detail-value">{book.page_count}</p>
-                  </div>
-                )}
-                
-                <div className="detail-section">
-                  <h3 className="detail-label">Description</h3>
-                  <p className="book-description">{book.description}</p>
-                </div>
-                
-                <button
-                  onClick={() => setShowReader(true)}
-                  className="btn-read-book"
-                >
-                  <Eye className="icon-md" />
-                  Lire le livre
-                </button>
-              </div>
+              )}
             </div>
-          </div>
-        ) : (
-          <div className="modal-body">
-            <div className="pdf-reader">
-              <Book className="pdf-reader-icon" />
-              <p className="pdf-reader-text">Lecteur PDF intégré</p>
-              <p className="pdf-reader-page">Page {currentPage} / 100</p>
+            
+            <div className="book-info-section">
+              <div className="detail-section">
+                <h3 className="detail-label">Auteur</h3>
+                <p className="detail-value">{book.author}</p>
+              </div>
               
-              <div className="page-controls">
-                <button
-                  onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                  disabled={currentPage === 1}
-                  className="btn-page-nav btn-prev"
-                >
-                  ← Page précédente
-                </button>
-                <button
-                  onClick={() => setCurrentPage(Math.min(100, currentPage + 1))}
-                  disabled={currentPage === 100}
-                  className="btn-page-nav btn-next"
-                >
-                  Page suivante →
-                </button>
+              <div className="detail-grid">
+                <div className="detail-section">
+                  <h3 className="detail-label">Année</h3>
+                  <p className="detail-value">{book.year}</p>
+                </div>
+                <div className="detail-section">
+                  <h3 className="detail-label">Genre</h3>
+                  <p className="detail-value">{book.genre}</p>
+                </div>
+              </div>
+              
+              {book.publisher && (
+                <div className="detail-section">
+                  <h3 className="detail-label">Éditeur</h3>
+                  <p className="detail-value">{book.publisher}</p>
+                </div>
+              )}
+              
+              {book.page_count && (
+                <div className="detail-section">
+                  <h3 className="detail-label">Pages</h3>
+                  <p className="detail-value">{book.page_count}</p>
+                </div>
+              )}
+              
+              {book.language && (
+                <div className="detail-section">
+                  <h3 className="detail-label">Langue</h3>
+                  <p className="detail-value">{book.language.toUpperCase()}</p>
+                </div>
+              )}
+              
+              <div className="detail-section">
+                <h3 className="detail-label">Description</h3>
+                <p className="book-description">
+                  {book.description || 'Aucune description disponible.'}
+                </p>
               </div>
               
               <button
-                onClick={() => setShowReader(false)}
-                className="btn-back-details"
+                onClick={handleReadBook}
+                className="btn-read-book"
               >
-                ← Retour aux détails
+                <Eye className="icon-md" />
+                Lire le livre
               </button>
             </div>
           </div>
-        )}
+        </div>
       </div>
     </div>
   );

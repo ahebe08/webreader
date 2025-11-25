@@ -6,8 +6,12 @@ const register = async (req, res) => {
   try {
     const { email, password } = req.body;
 
+    console.log('Tentative d\'inscription pour:', email);
+
     // Vérifier si l'utilisateur existe déjà
-    const existingUser = await User.findByEmail(email);
+    const existingUser = await User.findOne({ where: { email } });
+    console.log('Recherche utilisateur existant:', existingUser);
+
     if (existingUser) {
       return res.status(400).json({ 
         success: false,
@@ -15,12 +19,23 @@ const register = async (req, res) => {
       });
     }
 
-    // Hasher le mot de passe et créer l'utilisateur
+    // Hasher le mot de passe
+    console.log('Hachage du mot de passe...');
     const passwordHash = await hashPassword(password);
-    const user = await User.create(email, passwordHash);
+    console.log('Mot de passe haché avec succès');
+
+    // Créer l'utilisateur DIRECTEMENT avec Sequelize
+    console.log('Création de l\'utilisateur...');
+    const user = await User.create({
+      email: email,
+      password_hash: passwordHash
+    });
+    console.log('Utilisateur créé:', user.toJSON());
 
     // Générer le token
+    console.log('Génération du token...');
     const token = generateToken(user.id);
+    console.log('Token généré');
 
     res.status(201).json({
       success: true,
@@ -35,7 +50,8 @@ const register = async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Erreur d\'inscription:', error);
+    console.error('Erreur d\'inscription DÉTAILLÉE:', error);
+    console.error('Stack trace:', error.stack);
     res.status(500).json({ 
       success: false,
       error: 'Erreur interne du serveur lors de l\'inscription.' 

@@ -1,15 +1,20 @@
 import React, { useState } from 'react';
-import { Book } from 'lucide-react';
+import { Book, Eye, EyeOff } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
-export const LoginPage = ({ onSwitchToRegister }) => {
+export const LoginPage = () => {
   const { login } = useAuth();
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
     if (!email || !password) {
       setError('Veuillez remplir tous les champs');
       return;
@@ -19,9 +24,12 @@ export const LoginPage = ({ onSwitchToRegister }) => {
     setLoading(true);
     
     try {
-      await login(email, password);
+      const result = await login(email, password);
+      if (!result.success) {
+        setError(result.error || 'Email ou mot de passe incorrect');
+      }
     } catch (err) {
-      setError('Email ou mot de passe incorrect');
+      setError('Erreur de connexion au serveur');
     } finally {
       setLoading(false);
     }
@@ -29,8 +37,16 @@ export const LoginPage = ({ onSwitchToRegister }) => {
 
   const handleKeyPress = (e) => {
     if (e.key === 'Enter') {
-      handleSubmit();
+      handleSubmit(e);
     }
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const goToRegister = () => {
+    navigate('/register');
   };
 
   return (
@@ -49,7 +65,7 @@ export const LoginPage = ({ onSwitchToRegister }) => {
           </div>
         )}
         
-        <div className="auth-form">
+        <form className="auth-form" onSubmit={handleSubmit}>
           <div className="auth-form-group">
             <label className="auth-label">Email</label>
             <input
@@ -59,35 +75,48 @@ export const LoginPage = ({ onSwitchToRegister }) => {
               onKeyPress={handleKeyPress}
               className="auth-input"
               placeholder="votre@email.com"
+              disabled={loading}
             />
           </div>
           
-          <div className="auth-form-group">
+          <div className="auth-form-group password-input-container">
             <label className="auth-label">Mot de passe</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              onKeyPress={handleKeyPress}
-              className="auth-input"
-              placeholder="••••••••"
-            />
+            <div className="password-input-wrapper">
+              <input
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                onKeyPress={handleKeyPress}
+                className="auth-input password-input"
+                placeholder="••••••••"
+                disabled={loading}
+              />
+              <button
+                type="button"
+                className="password-toggle-btn"
+                onClick={togglePasswordVisibility}
+                disabled={loading}
+              >
+                {showPassword ? <EyeOff className="icon-sm" /> : <Eye className="icon-sm" />}
+              </button>
+            </div>
           </div>
           
           <button
-            onClick={handleSubmit}
+            type="submit"
             disabled={loading}
             className="auth-button"
           >
             {loading ? 'Connexion...' : 'Se connecter'}
           </button>
-        </div>
+        </form>
         
         <p className="auth-footer">
           Pas encore de compte ?{' '}
           <button
-            onClick={onSwitchToRegister}
+            onClick={goToRegister}
             className="auth-switch-link"
+            disabled={loading}
           >
             Créer un compte
           </button>

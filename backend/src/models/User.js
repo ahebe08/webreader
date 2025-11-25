@@ -36,9 +36,11 @@ const User = sequelize.define('User', {
   underscored: true
 });
 
-// Méthodes statiques
+// Méthodes statiques - CORRECTION ICI
 User.findByEmail = async function(email) {
-  return await this.findOne({ where: { email } });
+  return await this.findOne({ 
+    where: { email }
+  });
 };
 
 User.findById = async function(id) {
@@ -47,9 +49,10 @@ User.findById = async function(id) {
   });
 };
 
+// CORRECTION CRITIQUE : Utiliser create() avec les bons noms de colonnes
 User.createUser = async function(email, passwordHash) {
   return await this.create({
-    email,
+    email: email,
     password_hash: passwordHash
   });
 };

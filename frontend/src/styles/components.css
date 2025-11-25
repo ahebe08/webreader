@@ -380,3 +380,312 @@
   width: 96px;
   height: 96px;
 }
+
+/* Reading Progress Styles */
+.reading-progress {
+  margin-top: 1rem;
+  padding: 1rem;
+  background-color: #f8fafc;
+  border-radius: 0.5rem;
+}
+
+.progress-text {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+
+.progress-bar {
+  height: 0.5rem;
+  background-color: #e2e8f0;
+  border-radius: 0.25rem;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+  transition: width 0.3s ease;
+}
+
+.reading-progress-indicator {
+  height: 0.25rem;
+  background-color: #e2e8f0;
+  border-radius: 0.125rem;
+  margin-top: 0.5rem;
+  overflow: hidden;
+}
+
+.progress-indicator-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+  transition: width 0.3s ease;
+}
+
+.retry-button {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  margin-top: 1rem;
+}
+
+.retry-button:hover {
+  background-color: var(--secondary-color);
+}
+
+/* Styles pour les champs mot de passe avec bouton œil */
+.password-input-container {
+  position: relative;
+}
+
+.password-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-input {
+  padding-right: 3rem !important; /* Espace pour le bouton */
+}
+
+.password-toggle-btn {
+  position: absolute;
+  right: 0.75rem;
+  background: none;
+  border: none;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition-fast);
+}
+
+.password-toggle-btn:hover:not(:disabled) {
+  color: var(--primary-color);
+  background-color: #f3f4f6;
+}
+
+.password-toggle-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.password-toggle-btn .icon-sm {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* Styles pour les images de couverture */
+.book-cover-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 0.5rem;
+}
+
+.book-cover-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.book-cover-fallback.hidden {
+  display: none;
+}
+
+.book-cover-image-large {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 0.75rem;
+}
+
+.book-cover-fallback-large {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  color: rgba(255, 255, 255, 0.3);
+  border-radius: 0.75rem;
+}
+
+.book-cover-fallback-large.hidden {
+  display: none;
+}
+
+/* Styles pour la page de lecture */
+.reader-page {
+  min-height: 100vh;
+  background-color: var(--background-default);
+  display: flex;
+  flex-direction: column;
+}
+
+.reader-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100vh; /* Prendre toute la hauteur de la vue */
+}
+
+.reader-header {
+  background-color: var(--background-default);
+  border-bottom: 1px solid var(--border-color);
+  padding: 1rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex-shrink: 0; /* Empêcher le header de rétrécir */
+}
+
+.btn-back {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: none;
+  border: none;
+  color: var(--primary-color);
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  transition: var(--transition-fast);
+  align-self: flex-start;
+}
+
+.btn-back:hover {
+  color: var(--secondary-color);
+  background-color: #f3f4f6;
+}
+
+.reader-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.reader-author {
+  color: var(--text-secondary);
+  font-size: 1rem;
+  margin: 0;
+}
+
+/* Conteneur PDF en plein écran */
+.pdf-viewer-full {
+  flex: 1; /* Prendre tout l'espace disponible */
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 0; /* Important pour le flex */
+}
+
+.pdf-embed-full {
+  width: 100%;
+  height: 100%;
+  min-height: 0; /* Important pour le flex */
+  border: none;
+  flex: 1;
+}
+
+/* Alternative avec iframe pour meilleur support */
+.pdf-iframe-full {
+  width: 100%;
+  height: 100%;
+  border: none;
+  flex: 1;
+}
+
+.pdf-error-full {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  padding: 3rem;
+  color: #6b7280;
+  text-align: center;
+}
+
+.pdf-error-full .pdf-error-icon {
+  color: #9ca3af;
+  margin-bottom: 1rem;
+  width: 4rem;
+  height: 4rem;
+}
+
+.pdf-error-full .pdf-error-text {
+  color: #6b7280;
+  font-size: 1.125rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Suppression des marges et padding globaux pour la page reader */
+.reader-page * {
+  box-sizing: border-box;
+}
+
+/* Responsive pour petits écrans */
+@media (max-width: 768px) {
+  .reader-header {
+    padding: 1rem;
+  }
+  
+  .reader-title {
+    font-size: 1.25rem;
+  }
+  
+  .reader-author {
+    font-size: 0.875rem;
+  }
+}
+
+/* Assurer que le body n'a pas de marges */
+body {
+  margin: 0;
+  padding: 0;
+}
+
+/* Boutons d'action */
+.action-buttons {
+  display: flex;
+  gap: 1rem;
+  margin-top: auto;
+}
+
+.btn-read-book {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background-color: var(--primary-color);
+  color: white;
+  font-weight: 600;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  border: none;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  flex: 2;
+}
+
+.btn-read-book:hover {
+  background-color: var(--secondary-color);
+}

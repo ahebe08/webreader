@@ -12,8 +12,7 @@ const PORT = process.env.PORT || 5000;
 connectDB()
   .then(async () => {
     // Synchroniser les modèles avec la base
-    await sequelize.sync({ alter: true }); // ← AJOUT
-    console.log('✅ Database models synchronized');
+    await sequelize.sync({ alter: true });
     
     app.listen(PORT, () => {
       console.log(`Serveur demarre sur le PORT ${PORT}`);

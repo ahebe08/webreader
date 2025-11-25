@@ -115,7 +115,7 @@ docker-compose up --build
 
 ### 4) Accès aux services
 
-- Frontend : http://localhost:3000  
+- Frontend : http://localhost:5173  
 - Backend API : http://localhost:5000  
 - PostgreSQL : port 5432  
 

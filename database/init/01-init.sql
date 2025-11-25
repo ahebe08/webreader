@@ -5,7 +5,7 @@ DO $$
 BEGIN
     -- Vérifier si la table books existe
     IF NOT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'books') THEN
-        RAISE NOTICE '🔄 Création des tables...';
+        RAISE NOTICE 'Création des tables...';
 
         -- Créer la table users avec contraintes améliorées
         CREATE TABLE users (
@@ -107,16 +107,16 @@ BEGIN
             '$2a$12$LQv3c1yqBWVHxkd0g8f7Qu/33A6n6pBdA6u7Vp6R2Q9n9J1ZcXvOa' -- bcrypt hash for "password123"
         );
 
-        RAISE NOTICE '✅ Base de données initialisée avec succès !';
-        RAISE NOTICE '📚 5 livres d''exemple ajoutés';
-        RAISE NOTICE '👤 Utilisateur test: test@webreader.com / password123';
+        RAISE NOTICE 'Base de données initialisée avec succès !';
+        RAISE NOTICE '5 livres d''exemple ajoutés';
+        RAISE NOTICE 'Utilisateur test: test@webreader.com / password123';
         
     ELSE
-        RAISE NOTICE '✅ Base de données déjà initialisée, aucune action nécessaire';
+        RAISE NOTICE 'Base de données déjà initialisée, aucune action nécessaire';
     END IF;
 EXCEPTION
     WHEN others THEN
-        RAISE NOTICE '❌ Erreur lors de l''initialisation: %', SQLERRM;
+        RAISE NOTICE 'Erreur lors de l''initialisation: %', SQLERRM;
         RAISE;
 END $$;
 
