@@ -33,12 +33,12 @@ logs/
 # -------------------------------------------------
 # Uploads (versionner uniquement les dossiers vides via .gitkeep)
 # -------------------------------------------------
-uploads/*
-!uploads/.gitkeep
-uploads/covers/*
-!uploads/covers/.gitkeep
-uploads/pdfs/*
-!uploads/pdfs/.gitkeep
+# uploads/*
+# !uploads/.gitkeep
+# uploads/covers/*
+# !uploads/covers/.gitkeep
+# uploads/pdfs/*
+# !uploads/pdfs/.gitkeep
 
 # -------------------------------------------------
 # Docker
