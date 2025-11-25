@@ -1,18 +1,20 @@
-FROM node:18-alpine
+# Utiliser une version Node compatible avec Vite 5+
+FROM node:20-alpine
 
+# Définir le répertoire de travail
 WORKDIR /app
 
-# Copy package files first (for better caching)
+# Copier les fichiers package pour profiter du cache Docker
 COPY package*.json ./
 
-# Install dependencies
+# Installer les dépendances
 RUN npm install
 
-# Copy source code
+# Copier le reste du code source
 COPY . .
 
-# Expose port
+# Exposer le port Vite
 EXPOSE 5173
 
-# Start development server
+# Utiliser un host accessible depuis l'extérieur du conteneur pour le dev
 CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]

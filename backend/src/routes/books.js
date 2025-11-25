@@ -3,22 +3,30 @@ const {
   getAllBooks,
   getBookById,
   getBookPDF,
+  createBook,
   updateReadingProgress,
+  getReadingStats,
+  getGenres,
   createSampleBooks
 } = require('../controllers/bookController');
-const { authenticate } = require('../middleware/auth');
+const { authenticate, optionalAuth } = require('../middleware/auth');
+const { validateBook, validateReadingProgress } = require('../middleware/validation');
+const { uploadPDF, handleUploadError } = require('../config/upload');
 
 const router = express.Router();
 
-// Public routes
-router.get('/', getAllBooks);
-router.get('/:id', getBookById);
+// Routes publiques
+router.get('/', optionalAuth, getAllBooks);
+router.get('/genres', getGenres);
+router.get('/:id', optionalAuth, getBookById);
 router.get('/:id/pdf', getBookPDF);
 
-// Protected routes
-router.post('/:id/progress', authenticate, updateReadingProgress);
+// Routes protégées
+router.post('/:id/progress', authenticate, validateReadingProgress, updateReadingProgress);
+router.get('/user/stats', authenticate, getReadingStats);
 
-// Admin route for testing (would normally be protected)
-router.post('/samples/create', createSampleBooks);
+// Routes d'administration (à protéger avec un rôle admin en production)
+router.post('/', authenticate, uploadPDF.single('pdf'), validateBook, handleUploadError, createBook);
+router.post('/samples/create', authenticate, createSampleBooks);
 
 module.exports = router;

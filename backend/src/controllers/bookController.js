@@ -1,29 +1,37 @@
 const Book = require('../models/Book');
 const path = require('path');
 const fs = require('fs');
+const { pool } = require('../config/database');
 
 const getAllBooks = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
+    const limit = parseInt(req.query.limit) || 12;
     const search = req.query.search || '';
+    const genre = req.query.genre || '';
 
-    const result = await Book.findAll(page, limit, search);
+    const result = await Book.findAll(page, limit, search, genre);
 
     res.json({
       success: true,
-      data: result.books,
-      pagination: {
-        page: result.page,
-        totalPages: result.totalPages,
-        totalItems: result.total,
-        hasNext: page < result.totalPages,
-        hasPrev: page > 1
+      message: 'Livres récupérés avec succès',
+      data: {
+        livres: result.livres,
+        pagination: {
+          page: result.page,
+          pagesTotales: result.totalPages,
+          totalLivres: result.total,
+          aSuivant: result.page < result.totalPages,
+          aPrecedent: result.page > 1
+        }
       }
     });
   } catch (error) {
-    console.error('Get books error:', error);
-    res.status(500).json({ error: 'Internal server error while fetching books' });
+    console.error('Erreur lors de la récupération des livres:', error);
+    res.status(500).json({ 
+      success: false,
+      error: 'Erreur interne du serveur lors de la récupération des livres.' 
+    });
   }
 };
 
@@ -33,25 +41,32 @@ const getBookById = async (req, res) => {
     const book = await Book.findById(bookId);
 
     if (!book) {
-      return res.status(404).json({ error: 'Book not found' });
+      return res.status(404).json({ 
+        success: false,
+        error: 'Livre non trouvé.' 
+      });
     }
 
-    // Get reading session if user is authenticated
-    let readingSession = null;
+    // Obtenir la session de lecture si l'utilisateur est authentifié
+    let sessionLecture = null;
     if (req.userId) {
-      readingSession = await Book.getReadingSession(req.userId, bookId);
+      sessionLecture = await Book.getReadingSession(req.userId, bookId);
     }
 
     res.json({
       success: true,
+      message: 'Livre récupéré avec succès',
       data: {
         ...book,
-        readingSession
+        sessionLecture
       }
     });
   } catch (error) {
-    console.error('Get book error:', error);
-    res.status(500).json({ error: 'Internal server error while fetching book' });
+    console.error('Erreur lors de la récupération du livre:', error);
+    res.status(500).json({ 
+      success: false,
+      error: 'Erreur interne du serveur lors de la récupération du livre.' 
+    });
   }
 };
 
@@ -60,32 +75,127 @@ const getBookPDF = async (req, res) => {
     const bookId = parseInt(req.params.id);
     const book = await Book.findById(bookId);
 
+    console.log('🔍 [DEBUG] Book found:', book);
+
     if (!book) {
-      return res.status(404).json({ error: 'Book not found' });
+      return res.status(404).json({ 
+        success: false,
+        error: 'Livre non trouvé.' 
+      });
     }
 
     if (!book.pdf_path) {
-      return res.status(404).json({ error: 'PDF not available for this book' });
+      return res.status(404).json({ 
+        success: false,
+        error: 'PDF non disponible pour ce livre.' 
+      });
     }
 
-    const pdfPath = path.join(__dirname, '../../uploads', book.pdf_path);
+    const pdfPath = path.join('/app/uploads/pdfs', book.pdf_path);
+    console.log('🔍 [DEBUG] Looking for PDF at:', pdfPath);
+    console.log('🔍 [DEBUG] File exists?', fs.existsSync(pdfPath));
     
-    // Check if file exists
+    // Vérifier si le fichier existe
     if (!fs.existsSync(pdfPath)) {
-      return res.status(404).json({ error: 'PDF file not found' });
+      console.log('❌ [DEBUG] PDF NOT FOUND at:', pdfPath);
+      return res.status(404).json({ 
+        success: false,
+        error: 'Fichier PDF non trouvé sur le serveur.' 
+      });
     }
 
-    // Set headers for PDF
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `inline; filename="${book.title}.pdf"`);
+    // Obtenir les statistiques du fichier
+    const stats = fs.statSync(pdfPath);
 
-    // Stream the PDF file
+    // Définir les en-têtes pour le PDF
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Length', stats.size);
+    res.setHeader('Content-Disposition', `inline; filename="${book.title}.pdf"`);
+    res.setHeader('Cache-Control', 'public, max-age=3600'); // Cache 1 heure
+
+    // Stream le fichier PDF
     const fileStream = fs.createReadStream(pdfPath);
     fileStream.pipe(res);
 
   } catch (error) {
-    console.error('Get PDF error:', error);
-    res.status(500).json({ error: 'Internal server error while fetching PDF' });
+    console.error('Erreur lors de la récupération du PDF:', error);
+    res.status(500).json({ 
+      success: false,
+      error: 'Erreur interne du serveur lors de la récupération du PDF.' 
+    });
+  }
+};
+
+const createBook = async (req, res) => {
+  try {
+    console.log('📤 Upload request received');
+    console.log('📁 File object:', req.file); // ← Vérifie si le fichier est présent
+    console.log('📝 Body data:', req.body);   // ← Vérifie les autres données
+
+    if (!req.file) {
+      console.log('❌ No file uploaded');
+      return res.status(400).json({ 
+        success: false,
+        error: 'Un fichier PDF est requis.' 
+      });
+    }
+
+    console.log('✅ File uploaded successfully:', req.file.filename);
+
+    const {
+      title,
+      author,
+      year,
+      description,
+      genre,
+      publisher,
+      isbn,
+      page_count,
+      language
+    } = req.body;
+
+    // Vérifier qu'un PDF a été uploadé
+    if (!req.file) {
+      return res.status(400).json({ 
+        success: false,
+        error: 'Un fichier PDF est requis.' 
+      });
+    }
+
+    const bookData = {
+      title,
+      author,
+      year: year ? parseInt(year) : null,
+      description,
+      genre,
+      publisher,
+      isbn,
+      page_count: page_count ? parseInt(page_count) : null,
+      pdf_path: req.file.filename,
+      file_size: req.file.size,
+      language: language || 'fr',
+      cover_image: req.body.cover_image || null
+    };
+
+    const book = await Book.create(bookData);
+
+    res.status(201).json({
+      success: true,
+      message: 'Livre créé avec succès',
+      data: book
+    });
+  } catch (error) {
+    console.error('Erreur lors de la création du livre:', error);
+    
+    // Nettoyer le fichier uploadé en cas d'erreur
+    if (req.file) {
+      fs.unlinkSync(path.join(__dirname, '../../../uploads/pdfs', req.file.filename));
+    }
+
+    res.status(500).json({ 
+      success: false,
+      error: 'Erreur interne du serveur lors de la création du livre.' 
+    });
   }
 };
 
@@ -96,10 +206,13 @@ const updateReadingProgress = async (req, res) => {
 
     const book = await Book.findById(bookId);
     if (!book) {
-      return res.status(404).json({ error: 'Book not found' });
+      return res.status(404).json({ 
+        success: false,
+        error: 'Livre non trouvé.' 
+      });
     }
 
-    const readingSession = await Book.updateReadingSession(
+    const sessionLecture = await Book.updateReadingSession(
       req.userId, 
       bookId, 
       lastPage, 
@@ -108,71 +221,127 @@ const updateReadingProgress = async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Reading progress updated',
-      data: readingSession
+      message: 'Progression de lecture mise à jour avec succès',
+      data: sessionLecture
     });
   } catch (error) {
-    console.error('Update progress error:', error);
-    res.status(500).json({ error: 'Internal server error while updating progress' });
+    console.error('Erreur lors de la mise à jour de la progression:', error);
+    res.status(500).json({ 
+      success: false,
+      error: 'Erreur interne du serveur lors de la mise à jour de la progression.' 
+    });
   }
 };
 
-// Sample data for testing
+const getReadingStats = async (req, res) => {
+  try {
+    const stats = await Book.getUserReadingStats(req.userId);
+
+    res.json({
+      success: true,
+      message: 'Statistiques de lecture récupérées avec succès',
+      data: {
+        livresLus: parseInt(stats.total_books_read) || 0,
+        progressionTotale: parseFloat(stats.total_progress) || 0,
+        progressionMoyenne: parseFloat(stats.average_progress) || 0
+      }
+    });
+  } catch (error) {
+    console.error('Erreur lors de la récupération des statistiques:', error);
+    res.status(500).json({ 
+      success: false,
+      error: 'Erreur interne du serveur lors de la récupération des statistiques.' 
+    });
+  }
+};
+
+const getGenres = async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT DISTINCT genre 
+      FROM books 
+      WHERE genre IS NOT NULL AND genre != '' 
+      ORDER BY genre
+    `);
+
+    const genres = result.rows.map(row => row.genre);
+
+    res.json({
+      success: true,
+      message: 'Genres récupérés avec succès',
+      data: genres
+    });
+  } catch (error) {
+    console.error('Erreur lors de la récupération des genres:', error);
+    res.status(500).json({ 
+      success: false,
+      error: 'Erreur interne du serveur lors de la récupération des genres.' 
+    });
+  }
+};
+
+// Données d'exemple pour les tests
 const createSampleBooks = async (req, res) => {
   try {
     const sampleBooks = [
       {
-        title: "The Great Gatsby",
-        author: "F. Scott Fitzgerald",
-        year: 1925,
-        description: "A classic novel of the Jazz Age, telling the story of the mysterious millionaire Jay Gatsby and his obsession with the beautiful Daisy Buchanan.",
-        genre: "Classic",
-        publisher: "Scribner",
-        isbn: "9780743273565",
-        page_count: 180,
-        cover_image: "great-gatsby.jpg",
-        pdf_path: "sample1.pdf"
+        title: "Le Petit Prince",
+        author: "Antoine de Saint-Exupéry",
+        year: 1943,
+        description: "Conte poétique et philosophique sous l'apparence d'un conte pour enfants.",
+        genre: "Classique",
+        publisher: "Gallimard",
+        isbn: "9782070404992",
+        page_count: 96,
+        cover_image: "petit-prince.jpg",
+        pdf_path: "sample1.pdf",
+        language: "fr"
       },
       {
-        title: "To Kill a Mockingbird",
-        author: "Harper Lee",
-        year: 1960,
-        description: "A gripping story of racial injustice and childhood innocence in the American South.",
-        genre: "Fiction",
-        publisher: "J.B. Lippincott & Co.",
-        isbn: "9780061120084",
-        page_count: 281,
-        cover_image: "mockingbird.jpg",
-        pdf_path: "sample2.pdf"
+        title: "L'Étranger",
+        author: "Albert Camus",
+        year: 1942,
+        description: "Roman qui explore l'absurdité de la condition humaine à travers le personnage de Meursault.",
+        genre: "Philosophique",
+        publisher: "Gallimard",
+        isbn: "9782070360021",
+        page_count: 185,
+        cover_image: "etranger.jpg",
+        pdf_path: "sample2.pdf",
+        language: "fr"
       },
       {
-        title: "1984",
-        author: "George Orwell",
-        year: 1949,
-        description: "A dystopian social science fiction novel that examines the consequences of totalitarianism.",
-        genre: "Science Fiction",
-        publisher: "Secker & Warburg",
-        isbn: "9780451524935",
-        page_count: 328,
-        cover_image: "1984.jpg",
-        pdf_path: "sample3.pdf"
+        title: "Les Misérables",
+        author: "Victor Hugo",
+        year: 1862,
+        description: "Roman historique qui suit la vie de Jean Valjean sur plusieurs décennies.",
+        genre: "Classique",
+        publisher: "A. Lacroix, Verboeckhoven & Cie",
+        isbn: "9782253004718",
+        page_count: 1232,
+        cover_image: "miserables.jpg",
+        pdf_path: "sample3.pdf",
+        language: "fr"
       }
     ];
 
-    const createdBooks = [];
+    const livresCrees = [];
     for (const bookData of sampleBooks) {
       const book = await Book.create(bookData);
-      createdBooks.push(book);
+      livresCrees.push(book);
     }
 
     res.status(201).json({
       success: true,
-      message: 'Sample books created successfully',
-      data: createdBooks
+      message: 'Livres d\'exemple créés avec succès',
+      data: livresCrees
     });
   } catch (error) {
-    console.error('Create sample books error:', error);
-    res.status(500).json({ error: 'Internal server error while creating sample books' });
+    console.error('Erreur lors de la création des livres d\'exemple:', error);
+    res.status(500).json({ 
+      success: false,
+      error: 'Erreur interne du serveur lors de la création des livres d\'exemple.' 
+    });
   }
 };
 
@@ -180,6 +349,9 @@ module.exports = {
   getAllBooks,
   getBookById,
   getBookPDF,
+  createBook,
   updateReadingProgress,
+  getReadingStats,
+  getGenres,
   createSampleBooks
 };

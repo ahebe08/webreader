@@ -1,8 +1,11 @@
+version: '3.8'
+
 services:
   backend:
     build: 
       context: ./backend
       dockerfile: Dockerfile
+    container_name: webreader_backend
     ports:
       - "5000:5000"
     environment:
@@ -14,18 +17,25 @@ services:
       - DB_PASSWORD=password
       - JWT_SECRET=webreader_jwt_secret_key_2024
     volumes:
-      - ./backend/uploads:/app/uploads
-      - ./backend/src:/app/src  # ← 🔥 HOT RELOADING
+      - ./uploads:/app/uploads  # ← 🔥 CHANGE ICI : ./uploads au lieu de ./backend/uploads
+      - ./backend/src:/app/src
     depends_on:
       db:
-        condition: service_healthy  # ← 🔥 ATTEND que PostgreSQL soit PRÊT
+        condition: service_healthy
     networks:
       - webreader-network
+    healthcheck:  # ← AJOUT: Healthcheck backend
+      test: ["CMD", "curl", "-f", "http://localhost:5000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
   frontend:
     build: 
       context: ./frontend
       dockerfile: Dockerfile
+    container_name: webreader_frontend  # ← AJOUT: Nom explicite
     ports:
       - "5173:5173"
     volumes:
@@ -33,6 +43,7 @@ services:
       - /app/node_modules
     environment:
       - CHOKIDAR_USEPOLLING=true
+      - VITE_API_URL=http://localhost:5000/api  # ← AJOUT: URL API
     depends_on:
       backend:
         condition: service_healthy  # ← 🔥 ATTEND que le backend soit PRÊT
@@ -41,10 +52,12 @@ services:
 
   db:
     image: postgres:15-alpine
+    container_name: webreader_db  # ← AJOUT: Nom explicite
     environment:
       - POSTGRES_DB=webreader
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=password
+      - POSTGRES_INITDB_ARGS=--encoding=UTF8  # ← AJOUT: Encodage
     ports:
       - "5432:5432"
     volumes:
@@ -52,7 +65,7 @@ services:
       - ./database/init:/docker-entrypoint-initdb.d  # ← 🔥 SCRIPTS SQL AUTO
     networks:
       - webreader-network
-    healthcheck:  # ← 🔥 SANTÉ de PostgreSQL
+    healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
       timeout: 5s

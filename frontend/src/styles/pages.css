@@ -1,0 +1,251 @@
+/* Auth Pages (Login & Register) */
+.auth-container {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #e0e7ff, #ede9fe);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+.auth-card {
+    background-color: var(--background-default);
+    border-radius: 1.25rem;
+    box-shadow: var(--shadow-xl);
+    padding: 2rem;
+    width: 100%;
+    max-width: 28rem;
+}
+
+.auth-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.auth-logo-icon {
+    color: var(--primary-color);
+    width: 2.5rem;
+    height: 2.5rem;
+}
+
+.auth-logo-text {
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0;
+}
+
+.auth-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #4b5563;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.auth-form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.auth-label {
+    display: block;
+    font-weight: 600;
+    color: #4b5563;
+    margin-bottom: 0.5rem;
+}
+
+.auth-input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    transition: var(--transition-fast);
+}
+
+.auth-input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.auth-button {
+    width: 100%;
+    background-color: var(--primary-color);
+    color: white;
+    font-weight: 600;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    border: none;
+    cursor: pointer;
+    transition: var(--transition-fast);
+    margin-top: 0.5rem;
+}
+
+.auth-button:hover:not(:disabled) {
+    background-color: var(--secondary-color);
+}
+
+.auth-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.auth-footer {
+    margin-top: 1.5rem;
+    text-align: center;
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+.auth-switch-link {
+    background: none;
+    border: none;
+    color: var(--primary-color);
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    padding: 0;
+}
+
+.auth-switch-link:hover {
+    color: var(--secondary-color);
+    text-decoration: underline;
+}
+
+.auth-error {
+    background-color: #fee2e2;
+    border: 1px solid #fecaca;
+    color: #991b1b;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+/* Books Page */
+.books-page {
+    min-height: 100vh;
+    background-color: var(--background-light);
+}
+
+.books-container {
+    padding: 2rem 1rem;
+}
+
+.books-header {
+    margin-bottom: 2rem;
+}
+
+.books-title {
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+}
+
+.search-container {
+    position: relative;
+    margin-bottom: 2rem;
+}
+
+.search-input {
+    width: 100%;
+    padding: 0.75rem 1rem 0.75rem 3rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    transition: var(--transition-fast);
+}
+
+.search-input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.search-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9ca3af;
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+.books-grid {
+    display: grid;
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+    gap: 1.5rem;
+}
+
+@media (min-width: 640px) {
+    .books-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (min-width: 768px) {
+    .books-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (min-width: 1024px) {
+    .books-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+}
+
+.empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+}
+
+.empty-state-text {
+    font-size: 1.125rem;
+    color: #6b7280;
+    margin: 0;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .modal-content {
+        margin: 1rem;
+    }
+
+    .book-detail-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .page-controls {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .auth-card {
+        padding: 1.5rem;
+    }
+
+    .header-user-info span {
+        display: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .auth-logo-text {
+        font-size: 1.5rem;
+    }
+
+    .books-title {
+        font-size: 1.5rem;
+    }
+}

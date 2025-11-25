@@ -83,7 +83,7 @@ webreader/
 
 ```
 
-git clone [https://github.com/mon-compte/webreader.git](https://github.com/mon-compte/webreader.git)
+git clone [https://github.com/ahebe08/webreader.git](https://github.com/ahebe08/webreader.git)
 cd webreader
 
 ```

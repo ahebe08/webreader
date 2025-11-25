@@ -4,16 +4,17 @@ const { connectDB } = require('./src/config/database');
 
 const PORT = process.env.PORT || 5000;
 
-// Connect to database and start server
+// Connexion à la base de données et démarrage du serveur
 connectDB()
   .then(() => {
     app.listen(PORT, () => {
-      console.log(`🚀 Server running on port ${PORT}`);
-      console.log(`📚 WebReader API is ready!`);
-      console.log(`📍 Health check: http://localhost:${PORT}/api/health`);
+      console.log(`🚀 Serveur démarré sur le port ${PORT}`);
+      console.log(`📚 API WebReader est opérationnelle !`);
+      console.log(`📍 Vérification de santé: http://localhost:${PORT}/api/health`);
+      console.log(`🌍 Environnement: ${process.env.NODE_ENV}`);
     });
   })
   .catch((error) => {
-    console.error('❌ Failed to start server:', error);
+    console.error('❌ Échec du démarrage du serveur:', error);
     process.exit(1);
   });

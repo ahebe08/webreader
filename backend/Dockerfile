@@ -3,16 +3,16 @@ FROM node:18-alpine
 WORKDIR /app
 
 # Copy package files
-COPY package.json ./
+COPY package*.json ./
 
-# Install dependencies
-RUN npm install
+# Install dependencies (utilise npm install au lieu de npm ci)
+RUN npm install --omit=dev
 
 # Copy source code
 COPY . .
 
-# Create uploads directory
-RUN mkdir -p uploads
+# Create uploads directories
+RUN mkdir -p uploads/covers uploads/pdfs
 
 # Expose port
 EXPOSE 5000
