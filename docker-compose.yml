@@ -1,0 +1,66 @@
+services:
+  backend:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    environment:
+      - NODE_ENV=development
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_NAME=webreader
+      - DB_USER=postgres
+      - DB_PASSWORD=password
+      - JWT_SECRET=webreader_jwt_secret_key_2024
+    volumes:
+      - ./backend/uploads:/app/uploads
+      - ./backend/src:/app/src  # ← 🔥 HOT RELOADING
+    depends_on:
+      db:
+        condition: service_healthy  # ← 🔥 ATTEND que PostgreSQL soit PRÊT
+    networks:
+      - webreader-network
+
+  frontend:
+    build: 
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+    depends_on:
+      backend:
+        condition: service_healthy  # ← 🔥 ATTEND que le backend soit PRÊT
+    networks:
+      - webreader-network
+
+  db:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_DB=webreader
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init:/docker-entrypoint-initdb.d  # ← 🔥 SCRIPTS SQL AUTO
+    networks:
+      - webreader-network
+    healthcheck:  # ← 🔥 SANTÉ de PostgreSQL
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+
+networks:
+  webreader-network:
+    driver: bridge
