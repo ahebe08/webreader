@@ -1,5 +1,5 @@
 -- Script d'initialisation de la base de données WebReader
--- Version améliorée avec contraintes, index et données en français
+-- Version améliorée avec contraintes, index et données
 
 DO $$ 
 BEGIN
@@ -7,7 +7,7 @@ BEGIN
     IF NOT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'books') THEN
         RAISE NOTICE 'Création des tables...';
 
-        -- Créer la table users avec contraintes améliorées
+        -- Créer la table users
         CREATE TABLE users (
             id SERIAL PRIMARY KEY,
             email VARCHAR(255) UNIQUE NOT NULL CHECK (email ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'),
@@ -18,7 +18,7 @@ BEGIN
             CONSTRAINT valid_email CHECK (email ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$')
         );
 
-        -- Créer la table books avec contraintes améliorées
+        -- Créer la table books
         CREATE TABLE books (
             id SERIAL PRIMARY KEY,
             title VARCHAR(255) NOT NULL CHECK (length(trim(title)) > 0),
@@ -37,7 +37,7 @@ BEGIN
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
 
-        -- Créer la table reading_sessions avec contraintes
+        -- Créer la table reading_sessions
         CREATE TABLE reading_sessions (
             id SERIAL PRIMARY KEY,
             user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,

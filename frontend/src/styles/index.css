@@ -2,7 +2,7 @@
 @import './components.css';
 @import './pages.css';
 
-/* Global Styles and Variables */
+/* Style Global et Variables */
 :root {
   --primary-color: #4f46e5;
   --secondary-color: #7c3aed;

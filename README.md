@@ -13,7 +13,7 @@ WebReader est une plateforme web complète permettant de lire des livres en lign
 
 ## Description du Projet
 
-WebReader est une application full-stack moderne qui offre une expérience de lecture numérique complète. Les utilisateurs peuvent s'inscrire, parcourir une bibliothèque de livres, consulter les détails des ouvrages et lire des PDF directement dans le navigateur avec suivi de progression.
+WebReader est une application full-stack moderne qui offre une expérience de lecture numérique complète. Les utilisateurs peuvent s'inscrire, parcourir une bibliothèque de livres, consulter les détails des ouvrages et lire des PDF directement dans le navigateur.
 
 ## Fonctionnalités
 
@@ -31,8 +31,7 @@ WebReader est une application full-stack moderne qui offre une expérience de le
 
 ### Lecteur PDF Intégré
 - **Visualisation en ligne** : Lecteur PDF natif intégré
-- **Navigation fluide** : Interface de lecture optimisée
-- **Sécurité renforcée** : Protection contre le téléchargement
+- **Navigation fluide** : Interface de lecture optimisée, Protection contre le téléchargement
 
 ## Architecture Technique
 
@@ -154,8 +153,8 @@ docker-compose exec database psql -U webreader -d webreader_db
 
 **UTILITAIRES**
 - GET /api/health - Testé avec navigateur
-- GET /uploads/covers/:filename - Testé avec Postman
-- GET /uploads/pdfs/:filename - Testé avec Postman
+- GET /uploads/covers/:filename - Testé avec Postman et frontend
+- GET /uploads/pdfs/:filename - Testé avec Postman et frontend
 
 ### Détails des Endpoints
 

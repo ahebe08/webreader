@@ -8,7 +8,7 @@ require('./src/models/associations');
 
 const PORT = process.env.PORT || 5000;
 
-// Connect to database and start server
+// Connexion à la base de données et demarrage du serveur
 connectDB()
   .then(async () => {
     // Synchroniser les modèles avec la base
