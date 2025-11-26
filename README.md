@@ -84,19 +84,23 @@ cd webreader
 
 Créer le fichier `.env` à la racine :
 ```env
-# Database
-DB_NAME=webreader_db
-DB_USER=webreader
-DB_PASSWORD=webreader_password
+# Backend
+PORT=5000
+NODE_ENV=development
 DB_HOST=db
 DB_PORT=5432
+DB_NAME=webreader
+DB_USER=postgres
+DB_PASSWORD=password
+JWT_SECRET=webreader_jwt_secret_key_2024_securise_change_en_production
+DATABASE_URL="postgresql://postgres:password@db:5432/webreader"
 
-# JWT
-JWT_SECRET=votre_secret_jwt_super_securise
+# Upload de fichiers
+UPLOAD_MAX_SIZE=10485760
+ALLOWED_FILE_TYPES=application/pdf,image/jpeg,image/png,image/webp
 
-# App
-NODE_ENV=development
-PORT=5000
+# Frontend
+VITE_API_URL=http://localhost:5000/api
 ```
 
 3. **Lancer l'application**
