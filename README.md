@@ -402,7 +402,7 @@ curl -X POST http://localhost:5000/api/auth/register \
 
 ## Licence
 
-Ce projet est développé dans un cadre d'une évaluation technique.
+Ce projet est développé dans le cadre d'une évaluation technique.
 
 ## Auteur
 
